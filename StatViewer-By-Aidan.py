@@ -1,3 +1,4 @@
+#COPYRIGHT 2021 AIDAN CROSBY
 import discord
 import random
 import requests
@@ -6,7 +7,10 @@ import datetime
 TOKEN = "ODQ4MDIwODYyMzA4OTc0NjAy.YLGi-Q.N4a1Us-YLVBPDake6E8Vb575djI"
 API = "4700f0a7-cae9-417a-a6ce-01f2592875c7"
 
+#FUNCTIONS
 
+
+#FINDING THE MOST RECENT PROFILE
 def getRecentProfile(name, debug=False):
     data = requests.get(
         url = f"https://sky.shiiyu.moe/api/v2/profile/{name}").json()
@@ -22,7 +26,7 @@ def getRecentProfile(name, debug=False):
 
 
 
-
+#FIND THERE CURRENT ARMOUR
 def getArmourString(profile):
     armour = profile['items'].get('armor',0)
     if not armour: return "API OFF"
@@ -31,6 +35,8 @@ def getArmourString(profile):
     if not names: return "NONE"
     return "\n".join(names)
 
+
+#FIND THEIR CURRENT WEAPONS
 def getWeaponsString(profile):
     w = profile['items'].get('weapons',0)
     if not w: return "API OFF"
@@ -39,6 +45,7 @@ def getWeaponsString(profile):
     if not names: return "NO legendary or above"
     return "\n".join(names)
 
+#FIND THERE LEVEL 100 PETS
 def getPetString(profile):
     pets = profile['raw'].get ('pets', 0)
     if not pets: return "API OFF"
@@ -48,6 +55,8 @@ def getPetString(profile):
     
     return pets
 
+
+#FIND THERE CURRENT BANK AND BURSE COINS
 def getBankCoins(name, profile):
     data = requests.get(
         url = f"https://sky.shiiyu.moe/api/v2/coins/{name}/{profile['cute_name']}"
@@ -56,6 +65,8 @@ def getBankCoins(name, profile):
     bank =  data.get('bank','API OFF')
     purse = data['purse']
     return str(bank), str(purse)
+
+#FIND THERE MOST RECENT AUCTIONS(USING GETRECENTPROFILE FUNCTION AND HPYIXEL API)
 def getCurrentAuctions(name):
     profile = getRecentProfile(name)
     result = ""
@@ -72,15 +83,27 @@ def getCurrentAuctions(name):
     return result
     print(UUID)
 
+
+#EVENTS
+
+
+
+#CLIENT EVENT, DETECTED WHEN STARTED UP
 client = discord.Client()
 @client.event
 async def on_ready():
      print('We have logged in as {0.user}'.format(client))
 
-
+#CLIENT EVENT OF MESSAGE
 @client.event
 async def on_message(message):
-    await client.change_presence(activity=discord.Game('/overview your minecraft IGN'))
+    
+
+    #THE STATUS OF BOT(INGAME)
+    await client.change_presence(activity=discord.Game('/help'))
+    
+    
+    
     username = str(message.author).split('#')[0] 
     user_message =str(message.content)
     channel = str(message.channel.name)
@@ -90,6 +113,7 @@ async def on_message(message):
     if message.channel.name =='bot-commands':
         args = user_message.lower().split()
         print(args)
+        
         if user_message.lower() == 'hello':
             await message.channel.send(f'Hello @{username.display_name}!')
             return
@@ -120,6 +144,7 @@ async def on_message(message):
         await message.channel.send(embed = embed)
 
         return
+    #/OVERVIEW
     if args[0] == '/overview':
         name = args[1]
 
@@ -146,4 +171,9 @@ async def on_message(message):
         embed.set_footer(text="by PlutosNotRed#1169")
         await message.channel.send(embed = embed)
     
+
+
+#SCRIPT TO RUN BOT
+
+
 client.run(TOKEN)
