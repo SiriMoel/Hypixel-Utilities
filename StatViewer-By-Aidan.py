@@ -1,6 +1,7 @@
 #COPYRIGHT 2021 AIDAN CROSBY
 import discord
 import random
+from discord import user
 import requests
 import math
 import datetime
@@ -103,17 +104,40 @@ async def on_message(message):
     await client.change_presence(activity=discord.Game('/help'))
     
     
-    
+    curse = False
     username = str(message.author).split('#')[0] 
+    with open ("curses.txt", "r") as fd:
+        curseword = fd.readlines()
+        curseword = [a.strip() for a in curseword]
+        print(curseword)
     user_message =str(message.content)
     channel = str(message.channel.name)
+    logChannel = client.get_channel(848339556683743262)
     print(f'{username}: {user_message} ({channel})')
+    if not channel == "log":
+        if user_message in curseword:
+            print("curse word detected")
+            await message.delete()
+            await message.author.send("You cannot say that word (curse detection)")
+            curse = True
+        if curse == True:
+            embed=discord.Embed(title=f"{username} said", description=f"{user_message}", color=0x3f47ff)
+            embed.add_field(name="Curse", value="True", inline=False)
+            await logChannel.send(embed = embed)
+        else:
+            embed=discord.Embed(title=f"{username} said", description=f"{user_message}", color=0x3f47ff)
+            embed.add_field(name="Curse", value="False", inline=False)
+            await logChannel.send(embed = embed)
+
+        
+        await logChannel.send(f'{username}: {user_message} ({channel})')
+
+        print(f'{username}: {user_message} ({channel})')
     if message.author == client.user:
         return
     if message.channel.name =='bot-commands':
         args = user_message.lower().split()
         print(args)
-        
         if user_message.lower() == 'hello':
             await message.channel.send(f'Hello @{username.display_name}!')
             return
